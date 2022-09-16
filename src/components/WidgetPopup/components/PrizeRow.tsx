@@ -8,15 +8,20 @@ import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import Typography from "@mui/material/Typography";
+import { TPrizeField } from "../../../types";
 
-const PrizeRow = () => {
+interface IPrizeRowProps {
+  field: TPrizeField;
+}
+
+const PrizeRow = ({ field }: IPrizeRowProps) => {
   return (
     <Accordion
       sx={{
         "&:not(:last-child)": { mb: 2 },
       }}
     >
-      <AccordionSummary aria-controls="panel1a-content" id="panel1a-header">
+      <AccordionSummary>
         <Box
           sx={{
             width: "100%",
@@ -25,7 +30,7 @@ const PrizeRow = () => {
             justifyContent: "space-between",
           }}
         >
-          <Typography>Приз 1 🤍</Typography>
+          <Typography>{field.text}</Typography>
           <Box>
             <IconButton sx={{ mr: 1 }} size="small">
               <EditIcon />
@@ -52,7 +57,7 @@ const PrizeRow = () => {
                 disabled
                 size="small"
                 fullWidth
-                defaultValue="Приз 1 🤍"
+                defaultValue={field.text}
                 label="Название приза"
                 variant="standard"
               />
@@ -62,7 +67,7 @@ const PrizeRow = () => {
                 disabled
                 fullWidth
                 size="small"
-                defaultValue="Лазерная эпиляция любой зоны за 500 руб."
+                defaultValue={field.fullText}
                 label="Полное название приза"
                 variant="standard"
               />
@@ -73,7 +78,7 @@ const PrizeRow = () => {
                 fullWidth
                 size="small"
                 label="Цвет текста"
-                defaultValue="ff0000"
+                defaultValue={field.textColor.toLowerCase().slice(1)}
                 variant="standard"
                 sx={{ mr: 3 }}
                 InputProps={{
@@ -89,7 +94,7 @@ const PrizeRow = () => {
                           width: 13,
                           height: 13,
                           borderRadius: "2px",
-                          background: "#ff0000",
+                          background: field.textColor.toLowerCase(),
                         }}
                       />
                     </InputAdornment>
@@ -101,7 +106,7 @@ const PrizeRow = () => {
                 fullWidth
                 size="small"
                 label="Цвет сектора"
-                defaultValue="ff0000"
+                defaultValue={field.color.toLowerCase().slice(1)}
                 variant="standard"
                 InputProps={{
                   style: { fontFamily: "Roboto Mono" },
@@ -116,7 +121,7 @@ const PrizeRow = () => {
                           width: 13,
                           height: 13,
                           borderRadius: "2px",
-                          background: "#ff0000",
+                          background: field.color.toLowerCase(),
                         }}
                       />
                     </InputAdornment>
@@ -129,7 +134,7 @@ const PrizeRow = () => {
                 disabled
                 fullWidth
                 size="small"
-                defaultValue="https://some-very-long.com/link/72f1f73c-329b-11ed-a261-0242ac120002"
+                defaultValue={field.url}
                 label="Ссылка на запись"
                 variant="standard"
               />

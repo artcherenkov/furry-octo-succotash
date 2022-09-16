@@ -30,6 +30,7 @@ export type TWidget = {
 
 export type TPrizeField = {
   text: string;
+  fullText: string;
   url: string;
   color: string;
   textColor: string;

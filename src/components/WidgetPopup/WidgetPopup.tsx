@@ -2,6 +2,7 @@ import Modal from "@mui/material/Modal";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import {
   selectShowWidgetPopup,
+  setActiveWidgetId,
   toggleWidgetPopup,
 } from "../../store/slices/app-state";
 import Box from "@mui/material/Box";
@@ -11,6 +12,7 @@ import PrizeRow from "./components/PrizeRow";
 import IconButton from "@mui/material/IconButton";
 import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
+import { TWidget } from "../../types";
 
 const style = {
   position: "absolute" as "absolute",
@@ -26,12 +28,39 @@ const style = {
   p: 4,
 };
 
-const WidgetPopup = () => {
+interface IWidgetPopupProps {
+  widget: TWidget | Omit<TWidget, "id"> | undefined;
+}
+
+const EMPTY_WIDGET = {
+  name: "",
+  fields: [
+    {
+      text: "Приз 1",
+      fullText: "",
+      url: "",
+      color: "#1e9cb2",
+      textColor: "#e6ffff",
+    },
+    {
+      text: "Приз 2",
+      fullText: "",
+      url: "",
+      color: "#e6ffff",
+      textColor: "#1e96b4",
+    },
+  ],
+};
+
+const WidgetPopup = ({ widget }: IWidgetPopupProps) => {
   const dispatch = useAppDispatch();
   const open = useAppSelector(selectShowWidgetPopup);
 
+  const widgetToUse = widget || EMPTY_WIDGET;
+
   const handleClose = () => {
     dispatch(toggleWidgetPopup(false));
+    dispatch(setActiveWidgetId(undefined));
   };
 
   return (
@@ -48,7 +77,7 @@ const WidgetPopup = () => {
           <TextField
             disabled
             sx={{ width: "90%" }}
-            defaultValue="Виджет на главной странице подружек"
+            defaultValue={widgetToUse.name}
             label="Название виджета"
             variant="standard"
             InputProps={{
@@ -67,10 +96,9 @@ const WidgetPopup = () => {
           </IconButton>
         </Box>
 
-        <PrizeRow />
-        <PrizeRow />
-        <PrizeRow />
-        <PrizeRow />
+        {widgetToUse.fields.map((f) => (
+          <PrizeRow key={f.text} field={f} />
+        ))}
       </Box>
     </Modal>
   );
