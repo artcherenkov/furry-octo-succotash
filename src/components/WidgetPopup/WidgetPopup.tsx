@@ -1,18 +1,23 @@
 import Modal from "@mui/material/Modal";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import {
+  createWidget,
+  editWidget,
+  selectEditingWidget,
   selectShowWidgetPopup,
   setActiveWidgetId,
+  setEditingWidget,
   toggleWidgetPopup,
 } from "../../store/slices/app-state";
 import Box from "@mui/material/Box";
-import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import PrizeRow from "./components/PrizeRow";
 import IconButton from "@mui/material/IconButton";
 import AddIcon from "@mui/icons-material/Add";
-import EditIcon from "@mui/icons-material/Edit";
 import { TWidget } from "../../types";
+import WidgetName from "../WidgetForm/components/WidgetName";
+import React, { useEffect, useState } from "react";
+import Button from "@mui/material/Button";
 
 const style = {
   position: "absolute" as "absolute",
@@ -26,6 +31,8 @@ const style = {
   bgcolor: "background.paper",
   boxShadow: 24,
   p: 4,
+  display: "flex",
+  flexDirection: "column",
 };
 
 interface IWidgetPopupProps {
@@ -55,39 +62,74 @@ const EMPTY_WIDGET = {
 const WidgetPopup = ({ widget }: IWidgetPopupProps) => {
   const dispatch = useAppDispatch();
   const open = useAppSelector(selectShowWidgetPopup);
+  const editingWidget = useAppSelector(selectEditingWidget);
 
-  const widgetToUse = widget || EMPTY_WIDGET;
+  const widgetToUse: TWidget | Omit<TWidget, "id"> = widget || EMPTY_WIDGET;
+
+  const [widgetName, setWidgetName] = useState(widgetToUse.name);
+  const [canEdit, setCanEdit] = useState(false);
+  const [hasWidgetChanged, setHasWidgetChanged] = useState(false);
+
+  useEffect(() => {
+    if (open) {
+      setWidgetName(widgetToUse.name);
+      setCanEdit(false);
+      setHasWidgetChanged(false);
+      dispatch(setEditingWidget(widgetToUse));
+    }
+  }, [open, widgetToUse]);
+
+  useEffect(() => {
+    setHasWidgetChanged(
+      JSON.stringify(editingWidget) !== JSON.stringify(widgetToUse)
+    );
+  }, [editingWidget, widgetToUse]);
+
+  const handleWidgetNameChange = (evt: React.ChangeEvent<HTMLInputElement>) => {
+    setWidgetName(evt.target.value);
+  };
 
   const handleClose = () => {
     dispatch(toggleWidgetPopup(false));
     dispatch(setActiveWidgetId(undefined));
+    dispatch(setEditingWidget(undefined));
+    setWidgetName("");
+    setCanEdit(false);
+  };
+
+  const onEditWidgetNameClick = () => {
+    setCanEdit(true);
+  };
+
+  const onNameInputBlur = () => {
+    if (!editingWidget) return;
+
+    dispatch(setEditingWidget({ ...editingWidget, name: widgetName }));
+  };
+
+  const onSaveWidgetClick = () => {
+    if (!editingWidget) return;
+
+    if (editingWidget.hasOwnProperty("id")) {
+      dispatch(editWidget(editingWidget as TWidget));
+    } else {
+      dispatch(createWidget({ ...editingWidget, id: "id" + Math.random() }));
+    }
+
+    dispatch(setEditingWidget(undefined));
+    dispatch(toggleWidgetPopup(false));
   };
 
   return (
     <Modal open={open} onClose={handleClose}>
       <Box sx={style}>
-        <Box
-          mb={4}
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-          }}
-        >
-          <TextField
-            disabled
-            sx={{ width: "90%" }}
-            defaultValue={widgetToUse.name}
-            label="Название виджета"
-            variant="standard"
-            InputProps={{
-              style: { fontSize: 22 },
-            }}
-          />
-          <IconButton>
-            <EditIcon />
-          </IconButton>
-        </Box>
+        <WidgetName
+          value={widgetName}
+          onChange={handleWidgetNameChange}
+          onEditClick={onEditWidgetNameClick}
+          onBlur={onNameInputBlur}
+          disabled={!canEdit}
+        />
 
         <Box mb={2} sx={{ display: "flex" }}>
           <Typography variant="h6">Призы</Typography>
@@ -99,6 +141,15 @@ const WidgetPopup = ({ widget }: IWidgetPopupProps) => {
         {widgetToUse.fields.map((f) => (
           <PrizeRow key={f.text} field={f} />
         ))}
+
+        <Button
+          disabled={!hasWidgetChanged}
+          variant="contained"
+          onClick={onSaveWidgetClick}
+          sx={{ mt: 3, alignSelf: "flex-end" }}
+        >
+          Сохранить виджет
+        </Button>
       </Box>
     </Modal>
   );

@@ -14,6 +14,13 @@ interface IWidgetRowProps {
   widget: TWidget;
 }
 
+const rootStyles = {
+  p: 3,
+  display: "flex",
+  alignItems: "center",
+  "&:not(:last-child)": { mb: 3 },
+};
+
 const WidgetRow = ({ widget }: IWidgetRowProps) => {
   const dispatch = useAppDispatch();
 
@@ -25,32 +32,17 @@ const WidgetRow = ({ widget }: IWidgetRowProps) => {
   };
 
   return (
-    <Paper
-      sx={{
-        p: 3,
-        display: "flex",
-        alignItems: "center",
-        "&:not(:last-child)": { mb: 3 },
-      }}
-      variant="outlined"
-      elevation={0}
-    >
+    <Paper sx={rootStyles} variant="outlined" elevation={0}>
       <Typography variant="h6">{name}</Typography>
       <IconButton
         size="large"
         sx={{ ml: "auto" }}
         color="primary"
-        aria-label="edit widget"
         onClick={handleEditClick}
       >
         <EditIcon />
       </IconButton>
-      <IconButton
-        size="large"
-        sx={{ ml: 2 }}
-        color="primary"
-        aria-label="add to shopping cart"
-      >
+      <IconButton size="large" sx={{ ml: 2 }} color="primary">
         <CopyIcon />
       </IconButton>
     </Paper>
