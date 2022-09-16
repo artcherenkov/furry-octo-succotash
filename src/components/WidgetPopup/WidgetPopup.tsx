@@ -10,14 +10,14 @@ import Typography from "@mui/material/Typography";
 import PrizeRow from "./components/PrizeRow";
 import IconButton from "@mui/material/IconButton";
 import AddIcon from "@mui/icons-material/Add";
-import Button from "@mui/material/Button";
+import EditIcon from "@mui/icons-material/Edit";
 
 const style = {
   position: "absolute" as "absolute",
   top: "50%",
   left: "50%",
   transform: "translate(-50%, -50%)",
-  width: 600,
+  width: "100%",
   maxWidth: "80vw",
   maxHeight: "80vh",
   overflowY: "auto",
@@ -37,15 +37,28 @@ const WidgetPopup = () => {
   return (
     <Modal open={open} onClose={handleClose}>
       <Box sx={style}>
-        <TextField
-          sx={{ width: "90%", mb: 5 }}
-          defaultValue="Виджет на главной странице подружек"
-          label="Название виджета"
-          variant="standard"
-          InputProps={{
-            style: { fontSize: 22 },
+        <Box
+          mb={4}
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
           }}
-        />
+        >
+          <TextField
+            disabled
+            sx={{ width: "90%" }}
+            defaultValue="Виджет на главной странице подружек"
+            label="Название виджета"
+            variant="standard"
+            InputProps={{
+              style: { fontSize: 22 },
+            }}
+          />
+          <IconButton>
+            <EditIcon />
+          </IconButton>
+        </Box>
 
         <Box mb={2} sx={{ display: "flex" }}>
           <Typography variant="h6">Призы</Typography>
@@ -58,15 +71,6 @@ const WidgetPopup = () => {
         <PrizeRow />
         <PrizeRow />
         <PrizeRow />
-
-        <Box mt={6} sx={{ display: "flex", justifyContent: "flex-end" }}>
-          <Button sx={{ mr: 2 }} variant="contained">
-            Редактировать
-          </Button>
-          <Button variant="contained" color="warning">
-            Удалить
-          </Button>
-        </Box>
       </Box>
     </Modal>
   );
