@@ -14,10 +14,11 @@ import Typography from "@mui/material/Typography";
 import PrizeRow from "./components/PrizeRow";
 import IconButton from "@mui/material/IconButton";
 import AddIcon from "@mui/icons-material/Add";
-import { TWidget } from "../../types";
+import { TWipWidget } from "../../types";
 import WidgetName from "../WidgetForm/components/WidgetName";
 import React, { useEffect, useState } from "react";
 import Button from "@mui/material/Button";
+import { nanoid } from "nanoid";
 
 const style = {
   position: "absolute" as "absolute",
@@ -36,22 +37,28 @@ const style = {
 };
 
 interface IWidgetPopupProps {
-  widget: TWidget | Omit<TWidget, "id"> | undefined;
+  widget: TWipWidget | Omit<TWipWidget, "id"> | undefined;
 }
 
-const EMPTY_WIDGET = {
-  name: "",
+const EMPTY_WIDGET: TWipWidget = {
+  name: "Новый виджет",
   fields: [
     {
+      id: nanoid(),
+      index: 0,
       text: "Приз 1",
       fullText: "",
+      amoText: "",
       url: "",
       color: "#1e9cb2",
       textColor: "#e6ffff",
     },
     {
+      id: nanoid(),
+      index: 1,
       text: "Приз 2",
       fullText: "",
+      amoText: "",
       url: "",
       color: "#e6ffff",
       textColor: "#1e96b4",
@@ -59,12 +66,24 @@ const EMPTY_WIDGET = {
   ],
 };
 
+const createEmptyPrize = (idx: number) => ({
+  id: nanoid(),
+  index: idx,
+  text: `Приз ${idx + 1}`,
+  fullText: "",
+  amoText: "",
+  url: "",
+  color: "#1e9cb2",
+  textColor: "#e6ffff",
+});
+
 const WidgetPopup = ({ widget }: IWidgetPopupProps) => {
   const dispatch = useAppDispatch();
   const open = useAppSelector(selectShowWidgetPopup);
   const editingWidget = useAppSelector(selectEditingWidget);
 
-  const widgetToUse: TWidget | Omit<TWidget, "id"> = widget || EMPTY_WIDGET;
+  const widgetToUse: TWipWidget | Omit<TWipWidget, "id"> =
+    widget || EMPTY_WIDGET;
 
   const [widgetName, setWidgetName] = useState(widgetToUse.name);
   const [canEdit, setCanEdit] = useState(false);
@@ -111,13 +130,27 @@ const WidgetPopup = ({ widget }: IWidgetPopupProps) => {
     if (!editingWidget) return;
 
     if (editingWidget.hasOwnProperty("id")) {
-      dispatch(editWidget(editingWidget as TWidget));
+      dispatch(editWidget(editingWidget as TWipWidget));
     } else {
       dispatch(createWidget({ ...editingWidget, id: "id" + Math.random() }));
     }
 
     dispatch(setEditingWidget(undefined));
     dispatch(toggleWidgetPopup(false));
+  };
+
+  const onAddPrizeButtonClick = () => {
+    if (!editingWidget) return;
+
+    dispatch(
+      setEditingWidget({
+        ...editingWidget,
+        fields: [
+          ...editingWidget.fields,
+          createEmptyPrize(editingWidget.fields.length),
+        ],
+      })
+    );
   };
 
   return (
@@ -133,13 +166,13 @@ const WidgetPopup = ({ widget }: IWidgetPopupProps) => {
 
         <Box mb={2} sx={{ display: "flex" }}>
           <Typography variant="h6">Призы</Typography>
-          <IconButton sx={{ ml: "auto" }}>
+          <IconButton sx={{ ml: "auto" }} onClick={onAddPrizeButtonClick}>
             <AddIcon />
           </IconButton>
         </Box>
 
-        {widgetToUse.fields.map((f) => (
-          <PrizeRow key={f.text} field={f} />
+        {editingWidget?.fields.map((f) => (
+          <PrizeRow key={f.id} field={f} />
         ))}
 
         <Button

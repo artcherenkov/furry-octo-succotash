@@ -31,7 +31,25 @@ export type TWidget = {
 export type TPrizeField = {
   text: string;
   fullText: string;
+  amoText: string;
   url: string;
   color: string;
   textColor: string;
+};
+
+export type TWipPrizeField = {
+  id: string;
+  text: string;
+  fullText: string;
+  amoText: string;
+  url: string;
+  color: string;
+  textColor: string;
+  index: number;
+};
+
+export type TWipWidget = {
+  id?: string;
+  name: string;
+  fields: TWipPrizeField[];
 };

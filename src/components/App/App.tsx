@@ -6,12 +6,13 @@ import MainPage from "../../pages/Main/Main";
 import { setWidgets } from "../../store/slices/app-state";
 import { WIDGET } from "../../mocks/data";
 import { useAppDispatch } from "../../store/hooks";
+import { widgetToClient } from "../../adapter/widget";
 
 function App() {
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    dispatch(setWidgets([WIDGET]));
+    dispatch(setWidgets([WIDGET].map(widgetToClient)));
   }, []);
 
   return (

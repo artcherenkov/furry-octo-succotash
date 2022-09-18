@@ -1,13 +1,13 @@
 import type { PayloadAction } from "@reduxjs/toolkit";
 import { createSlice } from "@reduxjs/toolkit";
 import type { RootState } from "../";
-import { TWidget } from "../../types";
+import { TWipWidget } from "../../types";
 
 interface AppState {
   showWidgetPopup: boolean;
-  widgets: TWidget[];
+  widgets: TWipWidget[];
   activeWidgetId?: string;
-  editingWidget: TWidget | Omit<TWidget, "id"> | undefined;
+  editingWidget: TWipWidget | Omit<TWipWidget, "id"> | undefined;
 }
 
 const initialState: AppState = {
@@ -27,23 +27,23 @@ export const appStateSlice = createSlice({
     toggleWidgetPopup: (state, action: PayloadAction<boolean>) => {
       state.showWidgetPopup = action.payload;
     },
-    setWidgets: (state, action: PayloadAction<TWidget[]>) => {
+    setWidgets: (state, action: PayloadAction<TWipWidget[]>) => {
       state.widgets = action.payload;
     },
     setEditingWidget: (
       state,
-      action: PayloadAction<TWidget | Omit<TWidget, "id"> | undefined>
+      action: PayloadAction<TWipWidget | Omit<TWipWidget, "id"> | undefined>
     ) => {
       state.editingWidget = action.payload;
     },
-    editWidget: (state, action: PayloadAction<TWidget>) => {
+    editWidget: (state, action: PayloadAction<TWipWidget>) => {
       const editingWidgetIdx = state.widgets.findIndex(
         (w) => w.id === action.payload.id
       );
 
       state.widgets[editingWidgetIdx] = action.payload;
     },
-    createWidget: (state, action: PayloadAction<TWidget>) => {
+    createWidget: (state, action: PayloadAction<TWipWidget>) => {
       state.widgets = [...state.widgets, action.payload];
     },
   },
@@ -60,7 +60,7 @@ export const {
 
 export const selectShowWidgetPopup = (state: RootState) =>
   state.appState.showWidgetPopup;
-export const selectActiveWidget = (state: RootState): TWidget | undefined =>
+export const selectActiveWidget = (state: RootState): TWipWidget | undefined =>
   state.appState.widgets.find((w) => w.id === state.appState.activeWidgetId);
 export const selectWidgets = (state: RootState) => state.appState.widgets;
 export const selectEditingWidget = (state: RootState) =>

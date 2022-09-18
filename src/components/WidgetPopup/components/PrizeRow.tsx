@@ -2,21 +2,75 @@ import TextField from "@mui/material/TextField";
 import IconButton from "@mui/material/IconButton";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
+import DoneIcon from "@mui/icons-material/Done";
 import Box from "@mui/material/Box";
 import { InputAdornment } from "@mui/material";
 import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import Typography from "@mui/material/Typography";
-import { TPrizeField } from "../../../types";
+import { TWipPrizeField } from "../../../types";
+import React, { useRef, useState } from "react";
+import { useAppDispatch, useAppSelector } from "../../../store/hooks";
+import {
+  selectEditingWidget,
+  setEditingWidget,
+} from "../../../store/slices/app-state";
 
 interface IPrizeRowProps {
-  field: TPrizeField;
+  field: TWipPrizeField;
 }
 
 const PrizeRow = ({ field }: IPrizeRowProps) => {
+  const dispatch = useAppDispatch();
+  const editingWidget = useAppSelector(selectEditingWidget);
+
+  const [isEditing, setIsEditing] = useState(false);
+  const [expanded, setExpanded] = useState(false);
+  const [data, setData] = useState(field);
+  const formRef = useRef<null | HTMLFormElement>();
+
+  const onAccordionChange = () => {
+    if (isEditing) {
+      return;
+    }
+
+    setExpanded(!expanded);
+  };
+
+  const onEditClick = (evt: React.MouseEvent<HTMLButtonElement>) => {
+    evt.stopPropagation();
+    setIsEditing(true);
+    setExpanded(true);
+  };
+  const onSaveClick = (evt: React.MouseEvent<HTMLButtonElement>) => {
+    evt.stopPropagation();
+    formRef.current?.requestSubmit();
+  };
+  const onChange = (evt: React.ChangeEvent<HTMLInputElement>) => {
+    if (evt.target.name === "index") return;
+    setData({ ...data, [evt.target.name]: evt.target.value });
+  };
+  const onSubmit = (evt: React.FormEvent) => {
+    evt.preventDefault();
+    if (!editingWidget) return;
+
+    const newFields = editingWidget.fields.slice();
+    const fieldToEditIdx = newFields.findIndex((f) => f.id === data.id);
+
+    if (fieldToEditIdx === -1) return;
+
+    newFields[fieldToEditIdx] = data;
+
+    dispatch(setEditingWidget({ ...editingWidget, fields: newFields }));
+    setIsEditing(false);
+    setExpanded(false);
+  };
+
   return (
     <Accordion
+      expanded={expanded}
+      onChange={onAccordionChange}
       sx={{
         "&:not(:last-child)": { mb: 2 },
       }}
@@ -30,11 +84,18 @@ const PrizeRow = ({ field }: IPrizeRowProps) => {
             justifyContent: "space-between",
           }}
         >
-          <Typography>{field.text}</Typography>
+          <Typography>{data.text}</Typography>
           <Box>
-            <IconButton sx={{ mr: 1 }} size="small">
-              <EditIcon />
-            </IconButton>
+            {isEditing ? (
+              <IconButton sx={{ mr: 1 }} size="small" onClick={onSaveClick}>
+                <DoneIcon />
+              </IconButton>
+            ) : (
+              <IconButton sx={{ mr: 1 }} size="small" onClick={onEditClick}>
+                <EditIcon />
+              </IconButton>
+            )}
+
             <IconButton size="small">
               <DeleteIcon />
             </IconButton>
@@ -43,42 +104,62 @@ const PrizeRow = ({ field }: IPrizeRowProps) => {
       </AccordionSummary>
       <AccordionDetails>
         <Box sx={{ display: "flex", alignItems: "center" }}>
-          <Box sx={{ flexGrow: 1 }}>
+          <Box
+            component="form"
+            ref={formRef}
+            sx={{ flexGrow: 1 }}
+            onChange={onChange}
+            onSubmit={onSubmit}
+          >
             <Box sx={{ display: "flex" }}>
               <TextField
-                disabled
-                sx={{ mr: 3, width: 100 }}
+                name="index"
+                disabled={!isEditing}
+                sx={{ mr: 3, minWidth: 80, maxWidth: 80 }}
                 size="small"
                 defaultValue="1"
                 label="№ сектора"
                 variant="standard"
               />
               <TextField
-                disabled
+                name="text"
+                disabled={!isEditing}
+                sx={{ mr: 3 }}
                 size="small"
                 fullWidth
-                defaultValue={field.text}
+                defaultValue={data.text}
                 label="Название приза"
+                variant="standard"
+              />
+              <TextField
+                name="amoText"
+                disabled={!isEditing}
+                size="small"
+                fullWidth
+                defaultValue={data.text}
+                label="Название для AMO"
                 variant="standard"
               />
             </Box>
             <Box mt={3} sx={{ display: "flex" }}>
               <TextField
-                disabled
+                name="fullText"
+                disabled={!isEditing}
                 fullWidth
                 size="small"
-                defaultValue={field.fullText}
+                defaultValue={data.fullText}
                 label="Полное название приза"
                 variant="standard"
               />
             </Box>
             <Box mt={3} sx={{ display: "flex" }}>
               <TextField
-                disabled
+                name="textColor"
+                disabled={!isEditing}
                 fullWidth
                 size="small"
                 label="Цвет текста"
-                defaultValue={field.textColor.toLowerCase().slice(1)}
+                defaultValue={data.textColor.toLowerCase().slice(1)}
                 variant="standard"
                 sx={{ mr: 3 }}
                 InputProps={{
@@ -94,7 +175,7 @@ const PrizeRow = ({ field }: IPrizeRowProps) => {
                           width: 13,
                           height: 13,
                           borderRadius: "2px",
-                          background: field.textColor.toLowerCase(),
+                          background: data.textColor.toLowerCase(),
                         }}
                       />
                     </InputAdornment>
@@ -102,11 +183,12 @@ const PrizeRow = ({ field }: IPrizeRowProps) => {
                 }}
               />
               <TextField
-                disabled
+                name="color"
+                disabled={!isEditing}
                 fullWidth
                 size="small"
                 label="Цвет сектора"
-                defaultValue={field.color.toLowerCase().slice(1)}
+                defaultValue={data.color.toLowerCase().slice(1)}
                 variant="standard"
                 InputProps={{
                   style: { fontFamily: "Roboto Mono" },
@@ -121,7 +203,7 @@ const PrizeRow = ({ field }: IPrizeRowProps) => {
                           width: 13,
                           height: 13,
                           borderRadius: "2px",
-                          background: field.color.toLowerCase(),
+                          background: data.color.toLowerCase(),
                         }}
                       />
                     </InputAdornment>
@@ -131,10 +213,11 @@ const PrizeRow = ({ field }: IPrizeRowProps) => {
             </Box>
             <Box mt={3} sx={{ display: "flex" }}>
               <TextField
-                disabled
+                name="url"
+                disabled={!isEditing}
                 fullWidth
                 size="small"
-                defaultValue={field.url}
+                defaultValue={data.url}
                 label="Ссылка на запись"
                 variant="standard"
               />

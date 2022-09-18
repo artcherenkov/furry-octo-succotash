@@ -8,10 +8,10 @@ import {
   setActiveWidgetId,
   toggleWidgetPopup,
 } from "../../../../store/slices/app-state";
-import { TWidget } from "../../../../types";
+import { TWipWidget } from "../../../../types";
 
 interface IWidgetRowProps {
-  widget: TWidget;
+  widget: TWipWidget;
 }
 
 const rootStyles = {
