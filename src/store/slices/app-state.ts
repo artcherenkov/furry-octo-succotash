@@ -2,12 +2,16 @@ import type { PayloadAction } from "@reduxjs/toolkit";
 import { createSlice } from "@reduxjs/toolkit";
 import type { RootState } from "../";
 import { TWipWidget } from "../../types";
+import { widgetToClient } from "../../adapter/widget";
+import { getToken, setToken } from "../../utils/local-storage";
+import { api } from "../services/api";
 
 interface AppState {
   showWidgetPopup: boolean;
   widgets: TWipWidget[];
   activeWidgetId?: string;
   editingWidget: TWipWidget | Omit<TWipWidget, "id"> | undefined;
+  token: undefined | string;
 }
 
 const initialState: AppState = {
@@ -15,11 +19,15 @@ const initialState: AppState = {
   editingWidget: undefined,
   showWidgetPopup: false,
   activeWidgetId: undefined,
+  token: undefined,
 };
 
 export const appStateSlice = createSlice({
   name: "appState",
-  initialState,
+  initialState: () => {
+    const token = getToken();
+    return { ...initialState, token };
+  },
   reducers: {
     setActiveWidgetId: (state, action: PayloadAction<string | undefined>) => {
       state.activeWidgetId = action.payload;
@@ -47,23 +55,49 @@ export const appStateSlice = createSlice({
       state.widgets = [...state.widgets, action.payload];
     },
   },
+  extraReducers: (builder) => {
+    builder.addMatcher(
+      api.endpoints.getWidgets.matchFulfilled,
+      (state, { payload }) => {
+        state.widgets = payload.widgets.map(widgetToClient);
+      }
+    );
+    builder.addMatcher(
+      api.endpoints.login.matchFulfilled,
+      (state, { payload }) => {
+        setToken(payload.auth_token);
+        state.token = payload.auth_token;
+      }
+    );
+  },
 });
 
 export const {
   toggleWidgetPopup,
   setActiveWidgetId,
-  setWidgets,
   setEditingWidget,
   editWidget,
   createWidget,
 } = appStateSlice.actions;
 
-export const selectShowWidgetPopup = (state: RootState) =>
-  state.appState.showWidgetPopup;
-export const selectActiveWidget = (state: RootState): TWipWidget | undefined =>
-  state.appState.widgets.find((w) => w.id === state.appState.activeWidgetId);
-export const selectWidgets = (state: RootState) => state.appState.widgets;
-export const selectEditingWidget = (state: RootState) =>
-  state.appState.editingWidget;
+export const selectShowWidgetPopup = (state: RootState) => {
+  return state.appState.showWidgetPopup;
+};
+export const selectActiveWidget = (
+  state: RootState
+): TWipWidget | undefined => {
+  return state.appState.widgets.find(
+    (w) => w.id === state.appState.activeWidgetId
+  );
+};
+export const selectWidgets = (state: RootState) => {
+  return state.appState.widgets;
+};
+export const selectEditingWidget = (state: RootState) => {
+  return state.appState.editingWidget;
+};
+export const selectIsAuth = (state: RootState) => {
+  return !!state.appState.token;
+};
 
 export default appStateSlice.reducer;

@@ -49,7 +49,11 @@ const PrizeRow = ({ field }: IPrizeRowProps) => {
   };
   const onChange = (evt: React.ChangeEvent<HTMLInputElement>) => {
     if (evt.target.name === "index") return;
-    setData({ ...data, [evt.target.name]: evt.target.value });
+    let value = evt.target.value;
+    if (["color", "textColor"].includes(evt.target.name)) {
+      value = "#" + value;
+    }
+    setData({ ...data, [evt.target.name]: value });
   };
   const onSubmit = (evt: React.FormEvent) => {
     evt.preventDefault();
@@ -136,7 +140,7 @@ const PrizeRow = ({ field }: IPrizeRowProps) => {
                 disabled={!isEditing}
                 size="small"
                 fullWidth
-                defaultValue={data.text}
+                defaultValue={data.amoText}
                 label="Название для AMO"
                 variant="standard"
               />

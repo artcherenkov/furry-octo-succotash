@@ -1,6 +1,6 @@
 // POST /api/login
 export type TPostUserRequest = { login: string; password: string };
-export type TPostUserResponse = string;
+export type TPostUserResponse = { auth_token: string };
 
 // GET /api/widgets
 export type TGetWidgetsRequest = void;
@@ -11,7 +11,7 @@ export type TPostWidgetsRequest = Omit<TWidget, "id">;
 export type TPostWidgetsResponse = string;
 
 // GET /api/widgets/{id}
-export type TGetWidgetRequest = void;
+export type TGetWidgetRequest = string;
 export type TGetWidgetResponse = TWidget;
 
 // PUT /api/widgets/{id}
@@ -19,7 +19,7 @@ export type TPutWidgetRequest = Omit<TWidget, "id">;
 export type TPutWidgetResponse = TWidget;
 
 // DELETE /api/widgets/{id}
-export type TDeleteWidgetRequest = void;
+export type TDeleteWidgetRequest = string;
 export type TDeleteWidgetResponse = string;
 
 export type TWidget = {

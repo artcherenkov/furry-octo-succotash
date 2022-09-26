@@ -135,8 +135,7 @@ const WidgetPopup = ({ widget }: IWidgetPopupProps) => {
       dispatch(createWidget({ ...editingWidget, id: "id" + Math.random() }));
     }
 
-    dispatch(setEditingWidget(undefined));
-    dispatch(toggleWidgetPopup(false));
+    handleClose();
   };
 
   const onAddPrizeButtonClick = () => {
