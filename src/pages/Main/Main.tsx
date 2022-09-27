@@ -2,17 +2,17 @@ import Box from "@mui/material/Box";
 import WidgetRow from "./components/WidgetRow/WidgetRow";
 import CreateWidgetButton from "./components/CreateWidgetButton/CreateWidgetButton";
 import WidgetPopup from "../../components/WidgetPopup/WidgetPopup";
-import { useAppSelector } from "../../store/hooks";
+import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import {
   selectActiveWidget,
   selectWidgets,
+  setAuthToken,
 } from "../../store/slices/app-state";
 import { useGetWidgetsQuery } from "../../store/services/api";
-import { useNavigate } from "react-router-dom";
 import { deleteToken } from "../../utils/local-storage";
 
 const MainPage = () => {
-  const navigate = useNavigate();
+  const dispatch = useAppDispatch();
   const widgets = useAppSelector(selectWidgets);
   const activeWidget = useAppSelector(selectActiveWidget);
 
@@ -25,8 +25,7 @@ const MainPage = () => {
   if (error) {
     if ("status" in error && error.status === 401) {
       deleteToken();
-      navigate("/login");
-      return null;
+      dispatch(setAuthToken(undefined));
     }
   }
 

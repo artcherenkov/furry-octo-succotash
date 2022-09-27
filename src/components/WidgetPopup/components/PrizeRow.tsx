@@ -19,34 +19,44 @@ import {
 
 interface IPrizeRowProps {
   field: TWipPrizeField;
+  expanded: boolean;
+  isEditing: boolean;
+  disableToggling: boolean;
+  setIsEditing(id: string): void;
+  onExpand(id: string): void;
 }
 
-const PrizeRow = ({ field }: IPrizeRowProps) => {
+const PrizeRow = ({
+  field,
+  expanded,
+  onExpand,
+  isEditing,
+  setIsEditing,
+  disableToggling,
+}: IPrizeRowProps) => {
   const dispatch = useAppDispatch();
   const editingWidget = useAppSelector(selectEditingWidget);
 
-  const [isEditing, setIsEditing] = useState(false);
-  const [expanded, setExpanded] = useState(false);
   const [data, setData] = useState(field);
   const formRef = useRef<null | HTMLFormElement>();
 
   const onAccordionChange = () => {
-    if (isEditing) {
-      return;
-    }
+    if (disableToggling) return;
 
-    setExpanded(!expanded);
+    onExpand(expanded ? "" : field.id);
   };
 
   const onEditClick = (evt: React.MouseEvent<HTMLButtonElement>) => {
     evt.stopPropagation();
-    setIsEditing(true);
-    setExpanded(true);
+    setIsEditing(field.id);
+    onExpand(field.id);
   };
+
   const onSaveClick = (evt: React.MouseEvent<HTMLButtonElement>) => {
     evt.stopPropagation();
     formRef.current?.requestSubmit();
   };
+
   const onChange = (evt: React.ChangeEvent<HTMLInputElement>) => {
     if (evt.target.name === "index") return;
     let value = evt.target.value;
@@ -55,6 +65,7 @@ const PrizeRow = ({ field }: IPrizeRowProps) => {
     }
     setData({ ...data, [evt.target.name]: value });
   };
+
   const onSubmit = (evt: React.FormEvent) => {
     evt.preventDefault();
     if (!editingWidget) return;
@@ -67,8 +78,8 @@ const PrizeRow = ({ field }: IPrizeRowProps) => {
     newFields[fieldToEditIdx] = data;
 
     dispatch(setEditingWidget({ ...editingWidget, fields: newFields }));
-    setIsEditing(false);
-    setExpanded(false);
+    setIsEditing("");
+    onExpand("");
   };
 
   return (

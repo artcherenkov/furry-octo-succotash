@@ -93,6 +93,8 @@ const WidgetPopup = ({ widget }: IWidgetPopupProps) => {
   const [widgetName, setWidgetName] = useState(widgetToUse.name);
   const [canEdit, setCanEdit] = useState(false);
   const [hasWidgetChanged, setHasWidgetChanged] = useState(false);
+  const [expandedRow, setExpandedRow] = useState("");
+  const [isEditing, setIsEditing] = useState("");
 
   const [putWidgetById, { isLoading: isPutWidgetLoading }] =
     useLazyPutWidgetByIdQuery();
@@ -172,6 +174,14 @@ const WidgetPopup = ({ widget }: IWidgetPopupProps) => {
     );
   };
 
+  const onRowExpand = (id: string) => {
+    setExpandedRow(id);
+  };
+
+  const onRowSetEditing = (id: string) => {
+    setIsEditing(id);
+  };
+
   return (
     <Modal open={open} onClose={handleClose}>
       <Box sx={style}>
@@ -191,7 +201,15 @@ const WidgetPopup = ({ widget }: IWidgetPopupProps) => {
         </Box>
 
         {editingWidget?.fields.map((f) => (
-          <PrizeRow key={f.id} field={f} />
+          <PrizeRow
+            key={f.id}
+            field={f}
+            expanded={expandedRow === f.id}
+            onExpand={onRowExpand}
+            isEditing={isEditing === f.id}
+            disableToggling={!!isEditing}
+            setIsEditing={onRowSetEditing}
+          />
         ))}
 
         <Button
@@ -200,7 +218,9 @@ const WidgetPopup = ({ widget }: IWidgetPopupProps) => {
           onClick={onSaveWidgetClick}
           sx={{ mt: 3, alignSelf: "flex-end" }}
         >
-          {isPutWidgetLoading ? "..." : "Сохранить виджет"}
+          {isPutWidgetLoading || isPostWidgetLoading
+            ? "..."
+            : "Сохранить виджет"}
         </Button>
       </Box>
     </Modal>
