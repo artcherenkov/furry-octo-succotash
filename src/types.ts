@@ -15,7 +15,7 @@ export type TGetWidgetRequest = string;
 export type TGetWidgetResponse = TWidget;
 
 // PUT /api/widgets/{id}
-export type TPutWidgetRequest = Omit<TWidget, "id">;
+export type TPutWidgetRequest = TWidget;
 export type TPutWidgetResponse = TWidget;
 
 // DELETE /api/widgets/{id}

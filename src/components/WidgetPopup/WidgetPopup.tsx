@@ -14,11 +14,16 @@ import Typography from "@mui/material/Typography";
 import PrizeRow from "./components/PrizeRow";
 import IconButton from "@mui/material/IconButton";
 import AddIcon from "@mui/icons-material/Add";
-import { TWipWidget } from "../../types";
+import { TWidget, TWipWidget } from "../../types";
 import WidgetName from "../WidgetForm/components/WidgetName";
 import React, { useEffect, useState } from "react";
 import Button from "@mui/material/Button";
 import { nanoid } from "nanoid";
+import {
+  useLazyPostWidgetsQuery,
+  useLazyPutWidgetByIdQuery,
+} from "../../store/services/api";
+import { widgetToServer } from "../../adapter/widget";
 
 const style = {
   position: "absolute" as "absolute",
@@ -89,6 +94,12 @@ const WidgetPopup = ({ widget }: IWidgetPopupProps) => {
   const [canEdit, setCanEdit] = useState(false);
   const [hasWidgetChanged, setHasWidgetChanged] = useState(false);
 
+  const [putWidgetById, { isLoading: isPutWidgetLoading }] =
+    useLazyPutWidgetByIdQuery();
+
+  const [postWidget, { isLoading: isPostWidgetLoading }] =
+    useLazyPostWidgetsQuery();
+
   useEffect(() => {
     if (open) {
       setWidgetName(widgetToUse.name);
@@ -130,9 +141,18 @@ const WidgetPopup = ({ widget }: IWidgetPopupProps) => {
     if (!editingWidget) return;
 
     if (editingWidget.hasOwnProperty("id")) {
-      dispatch(editWidget(editingWidget as TWipWidget));
+      putWidgetById(widgetToServer(editingWidget) as TWidget).then(() => {
+        dispatch(editWidget(editingWidget as TWipWidget));
+      });
     } else {
-      dispatch(createWidget({ ...editingWidget, id: "id" + Math.random() }));
+      postWidget(widgetToServer(editingWidget))
+        .unwrap()
+        .then((data) => {
+          console.log(data);
+          dispatch(
+            createWidget({ ...editingWidget, id: "id" + Math.random() })
+          );
+        });
     }
 
     handleClose();
@@ -180,7 +200,7 @@ const WidgetPopup = ({ widget }: IWidgetPopupProps) => {
           onClick={onSaveWidgetClick}
           sx={{ mt: 3, alignSelf: "flex-end" }}
         >
-          Сохранить виджет
+          {isPutWidgetLoading ? "..." : "Сохранить виджет"}
         </Button>
       </Box>
     </Modal>

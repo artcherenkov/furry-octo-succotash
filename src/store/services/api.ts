@@ -1,5 +1,7 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import {
+  TDeleteWidgetRequest,
+  TDeleteWidgetResponse,
   TGetWidgetRequest,
   TGetWidgetResponse,
   TGetWidgetsRequest,
@@ -8,6 +10,8 @@ import {
   TPostUserResponse,
   TPostWidgetsRequest,
   TPostWidgetsResponse,
+  TPutWidgetRequest,
+  TPutWidgetResponse,
 } from "../../types";
 import { getToken } from "../../utils/local-storage";
 
@@ -53,8 +57,30 @@ export const api = createApi({
         url: `${ApiEndpoint.WIDGETS}/${id}`,
       }),
     }),
+    putWidgetById: builder.query<TPutWidgetResponse, TPutWidgetRequest>({
+      query: (body) => ({
+        url: `${ApiEndpoint.WIDGETS}/${body.id}`,
+        method: "PUT",
+        body,
+      }),
+    }),
+    deleteWidgetById: builder.query<
+      TDeleteWidgetResponse,
+      TDeleteWidgetRequest
+    >({
+      query: (id) => ({
+        url: `${ApiEndpoint.WIDGETS}/${id}`,
+        method: "DELETE",
+      }),
+    }),
   }),
 });
 
-export const { useLazyLoginQuery, useGetWidgetsQuery, useGetWidgetByIdQuery } =
-  api;
+export const {
+  useLazyLoginQuery,
+  useGetWidgetsQuery,
+  useGetWidgetByIdQuery,
+  useLazyPutWidgetByIdQuery,
+  useLazyPostWidgetsQuery,
+  useLazyDeleteWidgetByIdQuery,
+} = api;

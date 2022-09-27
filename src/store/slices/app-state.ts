@@ -11,7 +11,7 @@ interface AppState {
   widgets: TWipWidget[];
   activeWidgetId?: string;
   editingWidget: TWipWidget | Omit<TWipWidget, "id"> | undefined;
-  token: undefined | string;
+  token: string | undefined;
 }
 
 const initialState: AppState = {
@@ -25,7 +25,7 @@ const initialState: AppState = {
 export const appStateSlice = createSlice({
   name: "appState",
   initialState: () => {
-    const token = getToken();
+    const token = getToken() ?? undefined;
     return { ...initialState, token };
   },
   reducers: {
@@ -54,6 +54,12 @@ export const appStateSlice = createSlice({
     createWidget: (state, action: PayloadAction<TWipWidget>) => {
       state.widgets = [...state.widgets, action.payload];
     },
+    removeWidget: (state, action: PayloadAction<string>) => {
+      state.widgets = [...state.widgets].filter((w) => w.id !== action.payload);
+    },
+    setAuthToken: (state, action: PayloadAction<string | undefined>) => {
+      state.token = action.payload;
+    },
   },
   extraReducers: (builder) => {
     builder.addMatcher(
@@ -78,6 +84,8 @@ export const {
   setEditingWidget,
   editWidget,
   createWidget,
+  setAuthToken,
+  removeWidget,
 } = appStateSlice.actions;
 
 export const selectShowWidgetPopup = (state: RootState) => {
