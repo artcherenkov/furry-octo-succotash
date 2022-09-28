@@ -52,6 +52,10 @@ const WidgetRow = ({ widget }: IWidgetRowProps) => {
     dispatch(setActiveWidgetId(id));
   };
 
+  const handleCopyClick = () => {
+    navigator.clipboard.writeText(widget.widgetLink!);
+  };
+
   const handleDeleteClick = () => {
     deleteWidget(id!).then(() => {
       dispatch(removeWidget(id!));
@@ -69,7 +73,12 @@ const WidgetRow = ({ widget }: IWidgetRowProps) => {
       >
         <EditIcon fontSize="medium" />
       </IconButton>
-      <IconButton size="large" sx={{ ml: 2 }} color="primary">
+      <IconButton
+        size="large"
+        sx={{ ml: 2 }}
+        color="primary"
+        onClick={handleCopyClick}
+      >
         <CopyIcon fontSize="medium" />
       </IconButton>
       <IconButton

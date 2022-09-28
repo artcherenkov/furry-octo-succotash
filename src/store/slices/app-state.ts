@@ -12,6 +12,8 @@ interface AppState {
   activeWidgetId?: string;
   editingWidget: TWipWidget | Omit<TWipWidget, "id"> | undefined;
   token: string | undefined;
+  showCopyWidgetLinkPopup: boolean;
+  lastCreatedWidgetLink: string | undefined;
 }
 
 const initialState: AppState = {
@@ -20,6 +22,8 @@ const initialState: AppState = {
   showWidgetPopup: false,
   activeWidgetId: undefined,
   token: undefined,
+  showCopyWidgetLinkPopup: false,
+  lastCreatedWidgetLink: undefined,
 };
 
 export const appStateSlice = createSlice({
@@ -60,6 +64,15 @@ export const appStateSlice = createSlice({
     setAuthToken: (state, action: PayloadAction<string | undefined>) => {
       state.token = action.payload;
     },
+    setLastCreatedWidgetLink: (
+      state,
+      action: PayloadAction<string | undefined>
+    ) => {
+      state.lastCreatedWidgetLink = action.payload;
+    },
+    setShowCopyWidgetLinkPopup: (state, action: PayloadAction<boolean>) => {
+      state.showCopyWidgetLinkPopup = action.payload;
+    },
   },
   extraReducers: (builder) => {
     builder.addMatcher(
@@ -75,6 +88,13 @@ export const appStateSlice = createSlice({
         state.token = payload.auth_token;
       }
     );
+    builder.addMatcher(
+      api.endpoints.postWidgets.matchFulfilled,
+      (state, { payload }) => {
+        state.showCopyWidgetLinkPopup = true;
+        state.lastCreatedWidgetLink = payload.widget_link;
+      }
+    );
   },
 });
 
@@ -86,6 +106,8 @@ export const {
   createWidget,
   setAuthToken,
   removeWidget,
+  setLastCreatedWidgetLink,
+  setShowCopyWidgetLinkPopup,
 } = appStateSlice.actions;
 
 export const selectShowWidgetPopup = (state: RootState) => {
@@ -106,6 +128,12 @@ export const selectEditingWidget = (state: RootState) => {
 };
 export const selectIsAuth = (state: RootState) => {
   return !!state.appState.token;
+};
+export const selectShowCopyWidgetLinkPopup = (state: RootState) => {
+  return state.appState.showCopyWidgetLinkPopup;
+};
+export const selectLastCreatedWidgetLink = (state: RootState) => {
+  return state.appState.lastCreatedWidgetLink;
 };
 
 export default appStateSlice.reducer;

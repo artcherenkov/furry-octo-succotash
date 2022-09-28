@@ -14,7 +14,7 @@ import Typography from "@mui/material/Typography";
 import PrizeRow from "./components/PrizeRow";
 import IconButton from "@mui/material/IconButton";
 import AddIcon from "@mui/icons-material/Add";
-import { TWidget, TWipWidget } from "../../types";
+import { TServerWidget, TWipWidget } from "../../types";
 import WidgetName from "../WidgetForm/components/WidgetName";
 import React, { useEffect, useState } from "react";
 import Button from "@mui/material/Button";
@@ -139,25 +139,30 @@ const WidgetPopup = ({ widget }: IWidgetPopupProps) => {
     dispatch(setEditingWidget({ ...editingWidget, name: widgetName }));
   };
 
+  const isNewWidget = !editingWidget?.hasOwnProperty("id");
+
   const onSaveWidgetClick = () => {
     if (!editingWidget) return;
 
-    if (editingWidget.hasOwnProperty("id")) {
-      putWidgetById(widgetToServer(editingWidget) as TWidget).then(() => {
-        dispatch(editWidget(editingWidget as TWipWidget));
-      });
-    } else {
+    if (isNewWidget) {
       postWidget(widgetToServer(editingWidget))
         .unwrap()
         .then((data) => {
-          console.log(data);
           dispatch(
-            createWidget({ ...editingWidget, id: "id" + Math.random() })
+            createWidget({
+              ...editingWidget,
+              id: data.widget_id,
+              widgetLink: data.widget_link,
+            })
           );
+          handleClose();
         });
+    } else {
+      putWidgetById(widgetToServer(editingWidget) as TServerWidget).then(() => {
+        dispatch(editWidget(editingWidget as TWipWidget));
+        handleClose();
+      });
     }
-
-    handleClose();
   };
 
   const onAddPrizeButtonClick = () => {
@@ -181,6 +186,8 @@ const WidgetPopup = ({ widget }: IWidgetPopupProps) => {
   const onRowSetEditing = (id: string) => {
     setIsEditing(id);
   };
+
+  const saveButtonText = isNewWidget ? "Создать виджет" : "Сохранить виджет";
 
   return (
     <Modal open={open} onClose={handleClose}>
@@ -218,9 +225,7 @@ const WidgetPopup = ({ widget }: IWidgetPopupProps) => {
           onClick={onSaveWidgetClick}
           sx={{ mt: 3, alignSelf: "flex-end" }}
         >
-          {isPutWidgetLoading || isPostWidgetLoading
-            ? "..."
-            : "Сохранить виджет"}
+          {isPutWidgetLoading || isPostWidgetLoading ? "..." : saveButtonText}
         </Button>
       </Box>
     </Modal>

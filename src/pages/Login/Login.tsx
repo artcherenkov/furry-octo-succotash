@@ -11,8 +11,8 @@ const LoginPage = () => {
 
   const { control, handleSubmit } = useForm({
     defaultValues: {
-      login: "podruge",
-      password: "74asd103",
+      login: "",
+      password: "",
     },
   });
 
@@ -24,10 +24,10 @@ const LoginPage = () => {
 
   const renderError = (error: any) => {
     if (error.status === 401) {
-      return <p>Неверный логин или пароль</p>;
+      return <p style={{ color: "red" }}>Неверный логин или пароль</p>;
     }
 
-    return <p>Произошла неизвестная ошибка</p>;
+    return <p style={{ color: "red" }}>Произошла неизвестная ошибка</p>;
   };
 
   return (
@@ -51,7 +51,9 @@ const LoginPage = () => {
       <Controller
         name="password"
         control={control}
-        render={({ field }) => <TextField label="Пароль" {...field} />}
+        render={({ field }) => (
+          <TextField label="Пароль" type="password" {...field} />
+        )}
       />
 
       <Button
