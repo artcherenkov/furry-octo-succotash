@@ -39,6 +39,7 @@ const style = {
   p: 4,
   display: "flex",
   flexDirection: "column",
+  borderRadius: 4,
 };
 
 interface IWidgetPopupProps {
@@ -98,7 +99,6 @@ const WidgetPopup = ({ widget }: IWidgetPopupProps) => {
 
   const [putWidgetById, { isLoading: isPutWidgetLoading }] =
     useLazyPutWidgetByIdQuery();
-
   const [postWidget, { isLoading: isPostWidgetLoading }] =
     useLazyPostWidgetsQuery();
 
